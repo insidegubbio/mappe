@@ -2542,9 +2542,10 @@
         "text-size": ["interpolate", ["linear"], ["zoom"], 13, 12, 14, 13]
       },
       "paint": {
-        "text-color": "hsl(30,23%,62%)",
-        "text-halo-color": "#f8f4f0",
-        "text-halo-width": 0.5
+        "text-color": "#666",
+        "text-halo-color": "#fff",
+        "text-halo-blur": 0.5,
+        "text-halo-width": 1
       }
     },
     {
@@ -2578,6 +2579,7 @@
       },
       "paint": {
         "text-color": "#666",
+        "text-halo-color": "#fff",
         "text-halo-blur": 0.5,
         "text-halo-width": 1
       }
@@ -2609,6 +2611,7 @@
       },
       "paint": {
         "text-color": "#666",
+        "text-halo-color": "#fff",
         "text-halo-blur": 0.5,
         "text-halo-width": 1
       }
