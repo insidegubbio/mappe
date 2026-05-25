@@ -5,21 +5,18 @@
       "type": "vector",
       "url": "https://gpxstudio.xyz/openmaptiles.json"
     },
-    "esri": {
-      "type": "raster",
-      "tiles": ["https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/WMTS/tile/1.0.0/World_Imagery/default/default028mm/{z}/{y}/{x}.jpg"],
-      "tileSize": 256,
-      "maxzoom": 19,
-      "attribution": "© <a href=\"https://www.esri.com/\" target=\"_blank\">Esri</a>, Vantor, Earthstar Geographics, and the GIS User Community"
+    "maptiler": {
+      "url":"https://api.maptiler.com/tiles/satellite-v2/tiles.json?key=MAPTILER_KEY",
+      "type":"raster"
     }
   },
   "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
   "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
-      "id": "esri",
+      "id": "maptiler",
       "type": "raster",
-      "source": "esri"
+      "source": "maptiler"
     },
 
     {
