@@ -66,10 +66,13 @@ export class StyleManager {
     updateBasemap() {
         const map_ = get(this._map);
         if (!map_) return;
-        this.buildStyle().then((style) => map_.setStyle(style));
+        let basemap = get(currentBasemap);
+        this.buildStyle(basemap).then((style) => {
+            if (get(currentBasemap) === basemap) map_.setStyle(style);
+        });
     }
 
-    async buildStyle(): Promise<maplibregl.StyleSpecification> {
+    async buildStyle(basemap: string): Promise<maplibregl.StyleSpecification> {
         const custom = get(customLayers);
 
         const style: maplibregl.StyleSpecification = {
@@ -83,7 +86,6 @@ export class StyleManager {
             layers: [],
         };
 
-        let basemap = get(currentBasemap);
         const basemapInfo = basemaps[basemap] ?? custom[basemap]?.value ?? basemaps[defaultBasemap];
 
         let basemapStyle = basemaps.openStreetMap as maplibregl.StyleSpecification;
