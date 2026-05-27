@@ -1,6 +1,6 @@
 <script lang="ts">
-    import topoMap from '$lib/assets/img/home/topo.png?enhanced';
-    import waymarkedMap from '$lib/assets/img/home/waymarked.png?enhanced';
+    import topoMap from '$lib/assets/img/docs/maps/topo.png?enhanced';
+    import waymarkedMap from '$lib/assets/img/docs/maps/waymarked.png?enhanced';
 </script>
 
 <div class="relative h-80 aspect-square rounded-2xl shadow-xl overflow-clip">
