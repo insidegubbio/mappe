@@ -225,21 +225,38 @@ export class StyleManager {
             }
             if (layer.type === 'symbol' && layer.layout && layer.layout['text-field']) {
                 const textField = layer.layout['text-field'];
-                if (
-                    Array.isArray(textField) &&
-                    textField.length == 4 &&
-                    Array.isArray(textField[3]) &&
-                    textField[3][0] === 'coalesce' &&
-                    Array.isArray(textField[3][1]) &&
-                    textField[3][1][0] === 'get' &&
-                    typeof textField[3][1][1] === 'string' &&
-                    textField[3][1][1].startsWith('name')
-                ) {
-                    layer.layout['text-field'] = [
-                        'coalesce',
-                        ['get', `name:${i18n.lang}`],
-                        ['get', 'name'],
-                    ];
+                if (Array.isArray(textField)) {
+                    if (
+                        textField.length == 4 &&
+                        Array.isArray(textField[3]) &&
+                        textField[3][0] === 'coalesce' &&
+                        Array.isArray(textField[3][1]) &&
+                        textField[3][1][0] === 'get' &&
+                        typeof textField[3][1][1] === 'string' &&
+                        textField[3][1][1].startsWith('name')
+                    ) {
+                        // OpenFreeMap styles
+                        layer.layout['text-field'] = [
+                            'coalesce',
+                            ['get', `name:${i18n.lang}`],
+                            ['get', 'name'],
+                        ];
+                    }
+                    if (
+                        textField.length == 3 &&
+                        textField[0] === 'coalesce' &&
+                        Array.isArray(textField[1]) &&
+                        textField[1][0] === 'get' &&
+                        typeof textField[1][1] === 'string' &&
+                        textField[1][1].startsWith('name')
+                    ) {
+                        // OpenMapTiles styles
+                        layer.layout['text-field'] = [
+                            'coalesce',
+                            ['get', `name:${i18n.lang}`],
+                            ['get', 'name'],
+                        ];
+                    }
                 }
             }
             style.layers.push(layer);
