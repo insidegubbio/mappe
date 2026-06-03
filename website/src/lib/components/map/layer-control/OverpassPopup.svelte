@@ -88,6 +88,14 @@
                         <span class="font-mono">{key}</span>
                         {#if key === 'website' || key.startsWith('website:') || key.endsWith(':website') || key === 'contact:facebook' || key === 'contact:instagram' || key === 'contact:twitter'}
                             <a href={value} target="_blank" class="text-link underline">{value}</a>
+                        {:else if key === 'wikipedia' || key.startsWith('wikipedia:') || key.endsWith(':wikipedia')}
+                            <a
+                                href="https://wikipedia.org/wiki/{value}"
+                                target="_blank"
+                                class="text-link underline"
+                            >
+                                {value}
+                            </a>
                         {:else if key === 'phone' || key === 'contact:phone'}
                             <a href={'tel:' + value} class="text-link underline">{value}</a>
                         {:else if key === 'email' || key === 'contact:email'}
