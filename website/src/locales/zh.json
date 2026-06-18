@@ -156,7 +156,7 @@
                 "tertiary_link": "乡道/支路的连接路段",
                 "unclassified": "小型道路",
                 "residential": "居住区道路",
-                "living_street": "生活性街道",
+                "living_street": "住宅街道",
                 "service": "服务性道路",
                 "track": "小径（未铺设道路）",
                 "footway": "步行道路",
@@ -187,7 +187,7 @@
                 "demanding_alpine_hiking": "相对简单的攀爬部分，UIAA I-II 级（T5）",
                 "difficult_alpine_hiking": "更长的攀爬部分，UIAA II 级（T6）"
             },
-            "mtb_scale": "山地地形",
+            "mtb_scale": "山地自行车难度分级",
             "error": {
                 "from": "起点离最近的道路太远",
                 "via": "途径点离最近的道路太远",
@@ -222,9 +222,9 @@
             "remove_gaps": "删除轨迹间的时间间隔",
             "tooltip": "合并要素",
             "help_merge_traces": "连接所选内容并生成一个连续轨迹。",
-            "help_cannot_merge_traces": "须先选择多个文件以合并，",
+            "help_cannot_merge_traces": "须先选择多个文件以合并。",
             "help_merge_contents": "合并所选内容并将结果存储于第一个文件。",
-            "help_cannot_merge_contents": "须先选择多个文件以合并，",
+            "help_cannot_merge_contents": "须先选择多个文件以合并。",
             "selection_tip": "可使用 {KEYBOARD_SHORTCUT} 进行多选。"
         },
         "extract": {
@@ -235,7 +235,7 @@
         },
         "elevation": {
             "button": "请求海拔数据",
-            "help": "Requesting elevation data will erase the existing elevation data, if any, and replace it with data from Mapterhorn.",
+            "help": "请求成功后将移除原有的海拔数据，并使用 Mapterhorn 的海拔数据替换原有数据。",
             "help_no_selection": "选择要请求海拔数据的文件。"
         },
         "waypoint": {
@@ -264,8 +264,8 @@
             "delete_inside": "清除选区内部要素",
             "delete_outside": "清除选区外部要素",
             "button": "删除",
-            "help": "在地图上绘制矩形选区以清除",
-            "help_no_selection": "选择一个轨迹以清除其 GPS 点和兴趣点"
+            "help": "在地图上绘制矩形选区以清除。",
+            "help_no_selection": "选择一个轨迹以清除其 GPS 点和兴趣点。"
         }
     },
     "layers": {
@@ -277,7 +277,7 @@
             "new": "新建自定义图层",
             "edit": "编辑自定义图层",
             "urls": "URL(s)",
-            "url_placeholder": "WMTS，WMS 或 MapLibre style JSON",
+            "url_placeholder": "WMTS、WMS 或 MapLibre style JSON",
             "max_zoom": "最大缩放等级",
             "layer_type": "图层类型",
             "basemap": "底图",
@@ -333,7 +333,7 @@
             "usgs": "USGS",
             "bikerouterGravel": "bikerouter.de Gravel",
             "cyclOSMlite": "CyclOSM Lite",
-            "mapterhornHillshade": "山体阴影",
+            "mapterhornHillshade": "Mapterhorn Hillshade",
             "openRailwayMap": "OpenRailwayMap",
             "swisstopoSlope": "Swisstopo Slope",
             "swisstopoHiking": "Swisstopo Hiking",
@@ -377,12 +377,12 @@
             "hut": "小屋",
             "picnic": "野餐区",
             "summit": "顶峰",
-            "pass": "关卡",
+            "pass": "山坳",
             "climbing": "攀爬",
             "bicycle": "自行车",
-            "bicycle-parking": "停车区",
-            "bicycle-rental": "出租点",
-            "bicycle-shop": "车店",
+            "bicycle-parking": "自行车停车区",
+            "bicycle-rental": "自行车出租店",
+            "bicycle-shop": "自行车店",
             "public-transport": "公共交通",
             "railway-station": "火车站",
             "tram-stop": "有轨电车站",
@@ -445,7 +445,7 @@
             "bank": "银行",
             "beach": "海滩",
             "bike_trail": "自行车道",
-            "binoculars": "观察点",
+            "binoculars": "望远镜",
             "bridge": "桥",
             "building": "建筑物",
             "campground": "营地",
@@ -504,7 +504,7 @@
         "data_visualization": "数据可视化",
         "data_visualization_description": "可交互的海拔剖面图，带有详细的统计数据，用于分析已记录的活动和规划中的目标。",
         "philosophy": "宗旨",
-        "foss": "免费、 无广告且开源",
+        "foss": "免费、无广告且开源",
         "foss_description": "该网站可自由使用，无广告，源代码可在 GitHub 上公开查阅。",
         "privacy": "注重隐私",
         "privacy_description": "你的 GPX 文件永远不会离开你的浏览器。我们不会跟踪用户的使用行为，也不会收集用户产生的数据。",
