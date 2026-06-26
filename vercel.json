@@ -1,5 +1,6 @@
 {
   "buildCommand": "cd gpx && npm install && npm run build && cd ../website && npm install && npm run build",
   "outputDirectory": "website/build",
-  "installCommand": "echo skip"
+  "installCommand": "echo skip",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
