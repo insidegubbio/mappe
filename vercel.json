@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd gpx && npm install && npm run build && cd ../website && npm install && npm run build",
+  "buildCommand": "cd gpx && npm install && npm run build && cd ../website && npm install && npm install @sveltejs/adapter-vercel && npm run build",
   "outputDirectory": "website/build",
   "installCommand": "echo skip"
 }
