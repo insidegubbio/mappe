@@ -17,9 +17,17 @@ interface RequestBody {
     pois: POI[];
     create_track?: boolean;
     color?: string;
+    profile?: string; // foot, bike, car
+    routing?: boolean; // default true
 }
 
-//helpers
+interface RoutePoint {
+    lon: number;
+    lat: number;
+    ele?: number;
+}
+
+// helpers
 function escapeXml(str: string): string {
     return str
         .replace(/&/g, '&amp;')
@@ -37,24 +45,97 @@ function buildWpt(poi: POI): string {
     return `  <wpt lat="${poi.lat}" lon="${poi.lon}">${ele}${name}${desc}${sym}\n  </wpt>`;
 }
 
-function buildTrkpt(poi: POI): string {
-    const ele = poi.ele != null ? `\n        <ele>${poi.ele}</ele>` : '';
-    const name = poi.name ? `\n        <name>${escapeXml(poi.name)}</name>` : '';
-    return `      <trkpt lat="${poi.lat}" lon="${poi.lon}">${ele}${name}\n      </trkpt>`;
+function buildTrkptFromPoint(p: RoutePoint): string {
+    const ele = p.ele != null ? `\n        <ele>${p.ele.toFixed(2)}</ele>` : '';
+    return `      <trkpt lat="${p.lat}" lon="${p.lon}">${ele}\n      </trkpt>`;
 }
 
-function buildGPX(body: RequestBody): string {
-    const { name = 'Generated route', description = '', pois, create_track = true, color } = body;
+function buildTrkptFromPOI(poi: POI): string {
+    const ele = poi.ele != null ? `\n        <ele>${poi.ele}</ele>` : '';
+    return `      <trkpt lat="${poi.lat}" lon="${poi.lon}">${ele}\n      </trkpt>`;
+}
+
+// graphhopper routing
+async function getRouteBetween(
+    from: POI,
+    to: POI,
+    profile: string
+): Promise<RoutePoint[]> {
+    const body = {
+        points: [[from.lon, from.lat], [to.lon, to.lat]],
+        profile,
+        elevation: true,
+        points_encoded: false,
+        details: ['road_class', 'surface', 'hike_rating', 'mtb_rating'],
+        custom_model: {}
+    };
+
+    const res = await fetch('https://graphhopper.gpx.studio/route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(10000)
+    });
+
+    if (!res.ok) {
+        throw new Error(`GraphHopper error: ${res.status}`);
+    }
+
+    const data = await res.json();
+    const coordinates: [number, number, number][] = data.paths[0].points.coordinates;
+
+    return coordinates.map(([lon, lat, ele]) => ({ lon, lat, ele }));
+}
+
+async function buildRoutedTrackPoints(pois: POI[], profile: string): Promise<RoutePoint[]> {
+    const allPoints: RoutePoint[] = [];
+
+    for (let i = 0; i < pois.length - 1; i++) {
+        const segment = await getRouteBetween(pois[i], pois[i + 1], profile);
+        // avoid duplicate points at segment junctions
+        if (i > 0 && allPoints.length > 0) {
+            allPoints.push(...segment.slice(1));
+        } else {
+            allPoints.push(...segment);
+        }
+    }
+
+    return allPoints;
+}
+
+async function buildGPX(body: RequestBody): Promise<string> {
+    const {
+        name = 'Generated route',
+        description = '',
+        pois,
+        create_track = true,
+        color,
+        profile = 'foot',
+        routing = true
+    } = body;
 
     const now = new Date().toISOString();
 
-    // Waypoints (<wpt>)
+    // waypoints (<wpt>)
     const waypoints = pois.map(buildWpt).join('\n');
 
-    // Track (<trk>) connecting POIs in order
+    // track (<trk>)
     let track = '';
     if (create_track && pois.length >= 2) {
-        const trkpts = pois.map(buildTrkpt).join('\n');
+        let trkpts: string;
+
+        if (routing) {
+            try {
+                const routePoints = await buildRoutedTrackPoints(pois, profile);
+                trkpts = routePoints.map(buildTrkptFromPoint).join('\n');
+            } catch (e) {
+                // fallback to straight lines if routing fails
+                console.error('Routing failed, falling back to straight lines:', e);
+                trkpts = pois.map(buildTrkptFromPOI).join('\n');
+            }
+        } else {
+            trkpts = pois.map(buildTrkptFromPOI).join('\n');
+        }
 
         const extensions = color
             ? `\n    <extensions>\n      <gpx_style:line>\n        <gpx_style:color>${escapeXml(color)}</gpx_style:color>\n        <gpx_style:opacity>1</gpx_style:opacity>\n        <gpx_style:width>3</gpx_style:width>\n      </gpx_style:line>\n    </extensions>`
@@ -90,7 +171,7 @@ ${waypoints}${track}
 </gpx>`;
 }
 
-//validation
+// validation
 function validatePOI(poi: unknown, index: number): POI {
     if (typeof poi !== 'object' || poi === null) {
         throw error(400, `pois[${index}]: must be an object`);
@@ -112,6 +193,8 @@ function validatePOI(poi: unknown, index: number): POI {
         sym:  p.sym  != null ? String(p.sym)  : undefined,
     };
 }
+
+const VALID_PROFILES = ['foot', 'bike', 'car', 'mtb', 'racingbike', 'hike'];
 
 // handler
 export const POST: RequestHandler = async ({ request }) => {
@@ -136,18 +219,24 @@ export const POST: RequestHandler = async ({ request }) => {
         throw error(400, '`pois` can contain at most 500 points');
     }
 
+    const profile = b.profile != null ? String(b.profile) : 'foot';
+    if (!VALID_PROFILES.includes(profile)) {
+        throw error(400, `\`profile\` must be one of: ${VALID_PROFILES.join(', ')}`);
+    }
+
     const pois = b.pois.map((p, i) => validatePOI(p, i));
 
     const parsed: RequestBody = {
         name:         b.name         != null ? String(b.name)         : undefined,
         description:  b.description  != null ? String(b.description)  : undefined,
         create_track: b.create_track != null ? Boolean(b.create_track) : true,
+        routing:      b.routing      != null ? Boolean(b.routing)      : true,
         color:        b.color        != null ? String(b.color)         : undefined,
+        profile,
         pois,
     };
 
-    const gpxContent = buildGPX(parsed);
-
+    const gpxContent = await buildGPX(parsed);
     const filename = (parsed.name ?? 'route').replace(/[^a-z0-9_-]/gi, '_') + '.gpx';
 
     return new Response(gpxContent, {
@@ -161,12 +250,14 @@ export const POST: RequestHandler = async ({ request }) => {
 
 export const GET: RequestHandler = async () => {
     return json({
-        description: 'Generate a GPX file from a list of points of interest.',
+        description: 'Generate a GPX file from a list of points of interest, with optional road routing via GraphHopper.',
         method: 'POST',
         body: {
             name: 'string (optional) — name of the GPX file and track',
-            description: 'string (optional) — metadata description',
-            create_track: 'boolean (optional, default true) — connect POIs as a track',
+            description: 'string (optional) - metadata description',
+            create_track: 'boolean (optional, default true) - connect POIs as a track',
+            routing: 'boolean (optional, default true) — use road routing between POIs (false = straight lines)',
+            profile: `string (optional, default "foot") - routing profile: ${VALID_PROFILES.join(', ')}`,
             color: 'string (optional) — hex color for the track line, e.g. "ff0000"',
             pois: [
                 {
@@ -183,6 +274,8 @@ export const GET: RequestHandler = async () => {
             name: 'Giro del centro storico',
             description: 'Tour a piedi dei principali monumenti',
             create_track: true,
+            routing: true,
+            profile: 'foot',
             color: '0055ff',
             pois: [
                 { lat: 43.1122, lon: 12.3888, name: 'Fontana Maggiore', desc: 'Piazza IV Novembre', ele: 493 },
