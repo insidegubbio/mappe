@@ -1,4 +1,3 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install"
+  "installCommand": "cd ../gpx && npm install && cd ../website && npm install"
 }
